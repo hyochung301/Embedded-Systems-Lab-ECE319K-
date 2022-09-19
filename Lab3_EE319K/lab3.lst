@@ -1,0 +1,463 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;****************** Lab3.s ***************
+    2 00000000         ; Program written by: Put your names here
+    3 00000000         ; Date Created: 2/4/2017
+    4 00000000         ; Last Modified: 1/10/2022
+    5 00000000         ; Brief description of the program
+    6 00000000         ;   The LED toggles at 2 Hz and a varying duty-cycle
+    7 00000000         ; Hardware connections (External: Two buttons and one LE
+                       D)
+    8 00000000         ;  Change is Button input  (1 means pressed, 0 means not
+                        pressed)
+    9 00000000         ;  Breathe is Button input  (1 means pressed, 0 means no
+                       t pressed)
+   10 00000000         ;  LED is an output (1 activates external LED)
+   11 00000000         ; Overall functionality of this system is to operate lik
+                       e this
+   12 00000000         ;   1) Make LED an output and make Change and Breathe in
+                       puts.
+   13 00000000         ;   2) The system starts with the the LED toggling at 2H
+                       z,
+   14 00000000         ;      which is 2 times per second with a duty-cycle of 
+                       30%.
+   15 00000000         ;      Therefore, the LED is ON for 150ms and off for 35
+                       0 ms.
+   16 00000000         ;   3) When the Change button is pressed-and-released in
+                       crease
+   17 00000000         ;      the duty cycle by 20% (modulo 100%). Therefore fo
+                       r each
+   18 00000000         ;      press-and-release the duty cycle changes from 30%
+                        to 70% to 70%
+   19 00000000         ;      to 90% to 10% to 30% so on
+   20 00000000         ;   4) Implement a "breathing LED" when Breathe Switch i
+                       s pressed:
+   21 00000000         ; PortE device registers
+   22 00000000 400243FC 
+                       GPIO_PORTE_DATA_R
+                               EQU              0x400243FC
+   23 00000000 40024400 
+                       GPIO_PORTE_DIR_R
+                               EQU              0x40024400
+   24 00000000 4002451C 
+                       GPIO_PORTE_DEN_R
+                               EQU              0x4002451C
+   25 00000000 400FE608 
+                       SYSCTL_RCGCGPIO_R
+                               EQU              0x400FE608
+   26 00000000         
+   27 00000000                 IMPORT           TExaS_Init
+   28 00000000                 THUMB
+   29 00000000                 AREA             DATA, ALIGN=2
+   30 00000000         ;global variables go here
+   31 00000000         
+   32 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   33 00000000                 THUMB
+   34 00000000                 EXPORT           EID1
+   35 00000000 68 63 32 
+              37 34 32 
+              36 00    EID1    DCB              "hc27426",0 ;replace ABC123 wit
+                                                            h your EID
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   36 00000008                 EXPORT           EID2
+   37 00000008 67 61 77 
+              32 33 32 
+              32 00    EID2    DCB              "gaw2322",0 ;replace ABC123 wit
+                                                            h your EID
+   38 00000010                 ALIGN            4
+   39 00000010         
+   40 00000010                 EXPORT           Start
+   41 00000010         
+   42 00000010         Start
+   43 00000010         ; TExaS_Init sets bus clock at 80 MHz, interrupts, ADC1,
+                        TIMER3, TIMER5, and UART0
+   44 00000010 F04F 0003       MOV              R0,#3       ;0 for TExaS oscill
+                                                            oscope, 1 for PORTE
+                                                             logic analyzer, 2 
+                                                            for Lab3 grader, 3 
+                                                            for none
+   45 00000014 F7FF FFFE       BL               TExaS_Init  ;enables interrupts
+                                                            , prints the pin se
+                                                            lections based on E
+                                                            ID1 EID2
+   46 00000018         ;Initializations
+   47 00000018         ;clock
+   48 00000018 4829            LDR              R0, = SYSCTL_RCGCGPIO_R
+   49 0000001A 7801            LDRB             R1, [R0]
+   50 0000001C F041 0110       ORR              R1, #0x10   ; enable Port E clo
+                                                            ck
+   51 00000020 7001            STRB             R1, [R0]
+   52 00000022 BF00            NOP
+   53 00000024 BF00            NOP
+   54 00000026         ;Define direction(in and out) input 0(change) input 3(br
+                       eathe) output  4(Led)
+   55 00000026 4827            LDR              R0, =GPIO_PORTE_DIR_R
+   56 00000028 6801            LDR              R1, [R0]
+   57 0000002A F021 0109       BIC              R1, #0x09   ; clear input pins
+   58 0000002E F041 0110       ORR              R1, #0x10   ; set output bits t
+                                                            o 1
+   59 00000032 6001            STR              R1, [R0]    ;
+   60 00000034         ;DIGITAL ENABLE FOR TURNING ON 
+   61 00000034 4824            LDR              R0, =GPIO_PORTE_DEN_R ;READ
+   62 00000036 7801            LDRB             R1, [R0]
+   63 00000038 F041 0119       ORR              R1, #0x19   ;MODIFY TURN ON PE 
+                                                            0, 3, 4
+   64 0000003C 7001            STRB             R1, [R0]    ; WRITE
+   65 0000003E F44F 7A96       MOV              R10, #300   ;intial R10 value
+   66 00000042 F44F 7B2F       MOV              R11, #700   ;initial R11 value
+   67 00000046         
+   68 00000046         
+   69 00000046         
+   70 00000046         
+   71 00000046         
+   72 00000046         
+   73 00000046         loop
+   74 00000046         ; main engine goes here
+   75 00000046         ;R10 on delay R11 delay 
+   76 00000046         ;Toggle LED pin
+   77 00000046         
+   78 00000046         
+   79 00000046         
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   80 00000046         ;Regular on and off
+   81 00000046 4821    RUN     LDR              R0, = GPIO_PORTE_DATA_R
+   82 00000048 6801            LDR              R1, [R0]
+   83 0000004A F041 0110       ORR              R1, #0x10
+   84 0000004E 6001            STR              R1, [R0]
+   85 00000050         ;Delay cycle# counts
+   86 00000050 4653            MOV              R3, R10     ; counter1 n, n*.5 
+                                                            wait
+   87 00000052 F000 F80B       BL               DELAY
+   88 00000056         
+   89 00000056         
+   90 00000056 F021 0110       BIC              R1, #0x10
+   91 0000005A 481C            LDR              R0, = GPIO_PORTE_DATA_R ; get D
+                                                            ata address again
+   92 0000005C 6001            STR              R1, [R0]
+   93 0000005E 465B            MOV              R3, R11     ; counter2 
+   94 00000060 F000 F804       BL               DELAY
+   95 00000064 F006 0600       AND              R6, R6, #0
+   96 00000068         
+   97 00000068 E00C            B                CHK
+   98 0000006A         
+   99 0000006A         
+  100 0000006A E7EC            B                loop
+  101 0000006C         
+  102 0000006C         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  103 0000006C         DELAY
+  104 0000006C F44F 7048       MOV              R0, #800
+  105 00000070         
+  106 00000070         WAIT                                 ;subtract constantl
+                                                            y to get a wait of 
+                                                            .5 ms
+  107 00000070 1E40            SUBS             R0, R0, #0x01
+  108 00000072 D1FD            BNE              WAIT
+  109 00000074         
+  110 00000074 1E5B            SUBS             R3, R3, #1
+  111 00000076 D1F9            BNE              DELAY
+  112 00000078 4770            BX               LR
+  113 0000007A         ;;;;;;;;;;;;;;;
+  114 0000007A         OVER                                 ;if R10 is above 90
+                                                            0, swtich R10 100, 
+                                                            R11 900
+  115 0000007A F04F 0A64       MOV              R10, #100
+  116 0000007E F44F 7B61       MOV              R11, #900
+  117 00000082         
+  118 00000082 E7E0            B                RUN
+  119 00000084         ;;;;;;;;;;;;;;;
+  120 00000084         BRTH
+  121 00000084         
+  122 00000084         ;;;;;;;;;;;;;;;
+  123 00000084 4811    CHK     LDR              R0, =GPIO_PORTE_DATA_R
+  124 00000086 7801            LDRB             R1, [R0]    ; load bits 7:0
+  125 00000088 F001 0108       AND              R1, R1,  #0x08 ; isolate PE3
+  126 0000008C EA4F 01D1       LSR              R1, R1, #0x03 ; shift to bit 0 
+                                                            to compare later
+  127 00000090 2901            CMP              R1, #01     ; perform operation
+                                                             where one is subtr
+                                                            acted from "check" 
+                                                            value
+  128 00000092 D5F7            BPL              BRTH
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  129 00000094         
+  130 00000094         
+  131 00000094 4A0D            LDR              R2, =GPIO_PORTE_DATA_R ;checkin
+                                                            g for 2nd button
+  132 00000096 7801            LDRB             R1, [R0]    ; load bits 7:0
+  133 00000098 F001 0101       AND              R1, R1, #0x01 ; isolate PE0
+  134 0000009C 2901            CMP              R1, #1      ; subtract to see i
+                                                            f result is zero, w
+                                                            hich means it is pr
+                                                            essed
+  135 0000009E D50C            BPL              SETFLAG     ; if result was zer
+                                                            o, then switch was 
+                                                            pressed, set flag
+  136 000000A0         ;Check for flag, 
+  137 000000A0         
+  138 000000A0 F006 0601       AND              R6, R6, #0x01 
+                                                            ;isolating the flag
+                                                            
+  139 000000A4 2E00            CMP              R6, #0      ; check flag status
+                                                            
+  140 000000A6 D100            BNE              COMP        ;When flag is 1, co
+                                                            mpare with 900
+  141 000000A8         
+  142 000000A8         ;if not
+  143 000000A8 D0CD            BEQ              RUN
+  144 000000AA         
+  145 000000AA         
+  146 000000AA         ;COMP() subtract 900 from R10 to see if result is postiv
+                       e or negative
+  147 000000AA F5BA 7461 
+                       COMP    SUBS             R4, R10, #900
+  148 000000AE         ; branch to over if R10 is greater. if branch is not use
+                       d, then proceed to set the flag in next line
+  149 000000AE D5E4            BPL              OVER        ;should be bz
+  150 000000B0 F10A 0AC8       ADD              R10, R10, #200
+  151 000000B4 F1BB 0BC8       SUBS             R11, R11, #200
+  152 000000B8 E7C5            B                RUN
+  153 000000BA         
+  154 000000BA         ;;;;;;;;;;;;;;SETFLAG 
+  155 000000BA F046 0601 
+                       SETFLAG ORR              R6, #1
+  156 000000BE E7E1            B                CHK
+  157 000000C0         
+  158 000000C0         
+  159 000000C0         
+  160 000000C0         
+  161 000000C0         
+  162 000000C0                 ALIGN                        ; make sure the end
+                                                             of this section is
+                                                             aligned
+  163 000000C0                 END                          ; end of file
+              400FE608 
+              40024400 
+              4002451C 
+              400243FC 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
+ork --depend=.\lab3.d -o.\lab3.o -I.\RTE\_Lab3 -IC:\Users\kools\AppData\Local\A
+rm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include -IC:\Users\kools\AppData\Local\Arm\
+Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C123 --predefine="__EVAL SETA 1" --
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+predefine="__UVISION_VERSION SETA 534" --predefine="_RTE_ SETA 1" --predefine="
+TM4C123GH6PM SETA 1" --predefine="_RTE_ SETA 1" --list=.\lab3.lst Lab3.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 29 in file Lab3.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 32 in file Lab3.s
+   Uses
+      None
+Comment: .text unused
+BRTH 00000084
+
+Symbol: BRTH
+   Definitions
+      At line 120 in file Lab3.s
+   Uses
+      At line 128 in file Lab3.s
+Comment: BRTH used once
+CHK 00000084
+
+Symbol: CHK
+   Definitions
+      At line 123 in file Lab3.s
+   Uses
+      At line 97 in file Lab3.s
+      At line 156 in file Lab3.s
+
+COMP 000000AA
+
+Symbol: COMP
+   Definitions
+      At line 147 in file Lab3.s
+   Uses
+      At line 140 in file Lab3.s
+Comment: COMP used once
+DELAY 0000006C
+
+Symbol: DELAY
+   Definitions
+      At line 103 in file Lab3.s
+   Uses
+      At line 87 in file Lab3.s
+      At line 94 in file Lab3.s
+      At line 111 in file Lab3.s
+
+EID1 00000000
+
+Symbol: EID1
+   Definitions
+      At line 35 in file Lab3.s
+   Uses
+      At line 34 in file Lab3.s
+Comment: EID1 used once
+EID2 00000008
+
+Symbol: EID2
+   Definitions
+      At line 37 in file Lab3.s
+   Uses
+      At line 36 in file Lab3.s
+Comment: EID2 used once
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+OVER 0000007A
+
+Symbol: OVER
+   Definitions
+      At line 114 in file Lab3.s
+   Uses
+      At line 149 in file Lab3.s
+Comment: OVER used once
+RUN 00000046
+
+Symbol: RUN
+   Definitions
+      At line 81 in file Lab3.s
+   Uses
+      At line 118 in file Lab3.s
+      At line 143 in file Lab3.s
+      At line 152 in file Lab3.s
+
+SETFLAG 000000BA
+
+Symbol: SETFLAG
+   Definitions
+      At line 155 in file Lab3.s
+   Uses
+      At line 135 in file Lab3.s
+Comment: SETFLAG used once
+Start 00000010
+
+Symbol: Start
+   Definitions
+      At line 42 in file Lab3.s
+   Uses
+      At line 40 in file Lab3.s
+Comment: Start used once
+WAIT 00000070
+
+Symbol: WAIT
+   Definitions
+      At line 106 in file Lab3.s
+   Uses
+      At line 108 in file Lab3.s
+Comment: WAIT used once
+loop 00000046
+
+Symbol: loop
+   Definitions
+      At line 73 in file Lab3.s
+   Uses
+      At line 100 in file Lab3.s
+Comment: loop used once
+13 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+GPIO_PORTE_DATA_R 400243FC
+
+Symbol: GPIO_PORTE_DATA_R
+   Definitions
+      At line 22 in file Lab3.s
+   Uses
+      At line 81 in file Lab3.s
+      At line 91 in file Lab3.s
+      At line 123 in file Lab3.s
+      At line 131 in file Lab3.s
+
+GPIO_PORTE_DEN_R 4002451C
+
+Symbol: GPIO_PORTE_DEN_R
+   Definitions
+      At line 24 in file Lab3.s
+   Uses
+      At line 61 in file Lab3.s
+Comment: GPIO_PORTE_DEN_R used once
+GPIO_PORTE_DIR_R 40024400
+
+Symbol: GPIO_PORTE_DIR_R
+   Definitions
+      At line 23 in file Lab3.s
+   Uses
+      At line 55 in file Lab3.s
+Comment: GPIO_PORTE_DIR_R used once
+SYSCTL_RCGCGPIO_R 400FE608
+
+Symbol: SYSCTL_RCGCGPIO_R
+   Definitions
+      At line 25 in file Lab3.s
+   Uses
+      At line 48 in file Lab3.s
+Comment: SYSCTL_RCGCGPIO_R used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+TExaS_Init 00000000
+
+Symbol: TExaS_Init
+   Definitions
+      At line 27 in file Lab3.s
+   Uses
+      At line 45 in file Lab3.s
+Comment: TExaS_Init used once
+1 symbol
+355 symbols in table

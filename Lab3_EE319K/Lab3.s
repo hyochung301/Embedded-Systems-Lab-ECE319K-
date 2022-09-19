@@ -35,7 +35,6 @@ SYSCTL_RCGCGPIO_R  EQU 0x400FE608
 EID1   DCB "hc27426",0  ;replace ABC123 with your EID
        EXPORT EID2
 EID2   DCB "gaw2322",0  ;replace ABC123 with your EID
-CYCL	DCD #500
        ALIGN 4
 
      EXPORT  Start
@@ -61,55 +60,103 @@ Start
 ;DIGITAL ENABLE FOR TURNING ON 
 	LDR R0, =GPIO_PORTE_DEN_R ;READ
 	LDRB R1, [R0]
-	ORR R1, #0X19 ;MODIFY TURN ON PE 0, 3, 4
+	ORR R1, #0x19 ;MODIFY TURN ON PE 0, 3, 4
 	STRB R1, [R0] ; WRITE
-;Turn on the LED for the first time
-;50% @ 2HZ
+	MOV R10, #300 ;intial R10 value
+	MOV R11, #700;initial R11 value
+
+
 
 
 
 
 loop  
 ; main engine goes here
-;Delay for 1/4th of a second
+;R10 on delay R11 delay 
 ;Toggle LED pin
 
-;Check switch 1 pressed
-	LDR R6, = FLAG
-	LDR R4, = GPIO_PORTE_DATA_R
-	LDR R1, [R4]
-	ORR R1, #0x10
-	STR R1, [R4]
-	;Delay cycle# counts
-	LDR R3,=CYCL ; counter n, n*.5 wait
-	BL Delay
+
 	
-	;Delay 1k - cycle# counts
+;Regular on and off
+RUN	LDR R0, = GPIO_PORTE_DATA_R
+	LDR R1, [R0]
+	ORR R1, #0x10
+	STR R1, [R0]
+	;Delay cycle# counts
+	MOV R3, R10 ; counter1 n, n*.5 wait
+	BL DELAY
+	
+
 	BIC R1, #0x10
-	STR R1, [R4]
-	LDR R3, =CYCL ; counter n
-	SUBS R3, CYCL, #1,000
-	BL Delay
-
-
-
-
-
+	LDR R0, = GPIO_PORTE_DATA_R ; get Data address again
+	STR R1, [R0]
+	MOV R3, R11; counter2 
+	BL DELAY
+	AND R6, R6, #0
+	
+	B CHK
 
 
 	 B    loop
    
-  
-Delay 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+DELAY 
 	MOV R0, #800
-wait ;subtract constantly to get a wait of .5 ms
+	
+WAIT ;subtract constantly to get a wait of .5 ms
 	SUBS R0, R0, #0x01
-	BNE wait
+	BNE WAIT
 	
 	SUBS R3, R3, #1
-	BNE Delay
+	BNE DELAY
 	BX LR
+;;;;;;;;;;;;;;;
+OVER ;if R10 is above 900, swtich R10 100, R11 900
+	MOV R10, #100
+	MOV R11, #900
+	
+	B RUN
+;;;;;;;;;;;;;;;
+BRTH 
+
+;;;;;;;;;;;;;;;
+CHK	LDR R0, =GPIO_PORTE_DATA_R
+	LDRB R1, [R0] ; load bits 7:0
+	AND R1, R1,  #0x08 ; isolate PE3
+	LSR R1, R1, #0x03 ; shift to bit 0 to compare later
+	CMP R1, #01 ; perform operation where one is subtracted from "check" value
+	BPL BRTH
+
+
+	LDR R2, =GPIO_PORTE_DATA_R ;checking for 2nd button
+	LDRB R1, [R0] ; load bits 7:0
+	AND R1, R1, #0x01 ; isolate PE0
+	CMP R1, #1 ; subtract to see if result is zero, which means it is pressed
+	BPL SETFLAG ; if result was zero, then switch was pressed, set flag
+;Check for flag, 
+
+	AND R6, R6, #0x01 ;isolating the flag
+	CMP R6, #0 ; check flag status
+	BNE COMP ;When flag is 1, compare with 900
+
+;if not
+	BEQ RUN
+
+
+;COMP() subtract 900 from R10 to see if result is postive or negative
+COMP SUBS R4, R10, #900 
+; branch to over if R10 is greater. if branch is not used, then proceed to set the flag in next line
+	BPL OVER ;should be bz
+	ADD R10, R10, #200
+	SUBS R11, R11, #200
+	B RUN
+	
+;;;;;;;;;;;;;;SETFLAG 
+SETFLAG ORR R6, #1
+	B CHK
+
+
+
 
 	  
      ALIGN      ; make sure the end of this section is aligned
