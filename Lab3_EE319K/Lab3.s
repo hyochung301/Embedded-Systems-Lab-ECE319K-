@@ -41,7 +41,7 @@ EID2   DCB "gaw2322",0  ;replace ABC123 with your EID
 
 Start
 ; TExaS_Init sets bus clock at 80 MHz, interrupts, ADC1, TIMER3, TIMER5, and UART0
-     MOV R0,#3  ;0 for TExaS oscilloscope, 1 for PORTE logic analyzer, 2 for Lab3 grader, 3 for none
+     MOV R0,#2  ;0 for TExaS oscilloscope, 1 for PORTE logic analyzer, 2 for Lab3 grader, 3 for none
      BL  TExaS_Init ;enables interrupts, prints the pin selections based on EID1 EID2
 ;Initializations
 	;clock
@@ -62,8 +62,11 @@ Start
 	LDRB R1, [R0]
 	ORR R1, #0x19 ;MODIFY TURN ON PE 0, 3, 4
 	STRB R1, [R0] ; WRITE
+	MOV R8, #300 ;initial BRTH on value
+	MOV R9, #700 ; initial BRTH off value
 	MOV R10, #300 ;intial R10 value
 	MOV R11, #700;initial R11 value
+	
 
 
 
@@ -101,7 +104,7 @@ RUN	LDR R0, = GPIO_PORTE_DATA_R
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DELAY 
-	MOV R0, #800
+	MOV R0, #12000
 	
 WAIT ;subtract constantly to get a wait of .5 ms
 	SUBS R0, R0, #0x01
@@ -118,6 +121,37 @@ OVER ;if R10 is above 900, swtich R10 100, R11 900
 	B RUN
 ;;;;;;;;;;;;;;;
 BRTH 
+	;chk 900
+	SUBS R4, R8, #900 
+	BPL ABV
+	BMI BLW
+	
+ABV	MOV R8, #100
+	MOV R9, #900
+	B B2
+	
+BLW	ADD R8, R8, #5
+	SUBS R9, R9, #5
+	B B2
+
+	;delay using R8
+	
+B2	LDR R0, = GPIO_PORTE_DATA_R
+	LDR R1, [R0]
+	ORR R1, #0x10
+	STR R1, [R0]
+	;Delay cycle# counts
+	MOV R3, R8 ; counter1 n, n*.5 wait
+	BL DELAY
+	
+
+	BIC R1, #0x10
+	LDR R0, = GPIO_PORTE_DATA_R ; get Data address again
+	STR R1, [R0]
+	MOV R3, R9; counter2 
+	BL DELAY
+	;delay using R9
+	B CHK
 
 ;;;;;;;;;;;;;;;
 CHK	LDR R0, =GPIO_PORTE_DATA_R
