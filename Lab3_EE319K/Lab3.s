@@ -113,6 +113,18 @@ WAIT ;subtract constantly to get a wait of .5 ms
 	SUBS R3, R3, #1
 	BNE DELAY
 	BX LR
+	
+;;;;;;
+DELAY1
+	MOV R0, #240
+	
+WAIT1 ;subtract constantly to get a wait of .5 ms
+	SUBS R0, R0, #0x01
+	BNE WAIT1
+	
+	SUBS R3, R3, #1
+	BNE DELAY1
+	BX LR
 ;;;;;;;;;;;;;;;
 OVER ;if R10 is above 900, swtich R10 100, R11 900
 	MOV R10, #100
@@ -142,14 +154,14 @@ B2	LDR R0, = GPIO_PORTE_DATA_R
 	STR R1, [R0]
 	;Delay cycle# counts
 	MOV R3, R8 ; counter1 n, n*.5 wait
-	BL DELAY
+	BL DELAY1
 	
 
 	BIC R1, #0x10
 	LDR R0, = GPIO_PORTE_DATA_R ; get Data address again
 	STR R1, [R0]
 	MOV R3, R9; counter2 
-	BL DELAY
+	BL DELAY1
 	;delay using R9
 	B CHK
 
