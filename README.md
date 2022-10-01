@@ -14,10 +14,15 @@ Labs from Jonathan Valvano's [EE319K Introduction to Embedded Systems](http://us
 
 ## Labs
 
-- Lab 1 - Assembly Language input/output and logic
-- Lab 2 - Temperature sensor data analysis (Mean, Range, Monotonicity) written in C
-- Lab 3 - Duty Cycle, Breathing LED, and Timing without SysTick
-- Lab 5 - Table-top traffic light
-- Lab 6 - DAC piano
+- Lab 1 - Digital lock, I/O, parallel port, direction register and logic function, written in assembly
+- Lab 2 - Temperature sensor data analysis - Mean, Range, Monotonicity, written in C
+- Lab 3 - Breathing LED - LED and switch interface, circuit measurements, schematics, written in assembly
+- Lab 4 - Debugging techniques, one switch, one LED, written in assembly
+- Lab 5 - Traffic Light, FSMs, written in C
+- Lab 6 - Digital Piano using a 6-bit DAC, written in C
+- Lab 7 - LCD device driver, decimal fixed-point output, local variables, written in assembly
+- Lab 8 - Real-time position monitor, ADC, interrupts, LCD, mixture of assembly and C
+- Lab 9 - Distributed DAS, serial port interrupts, FIFO queue, mixture of assembly and C
+- Lab 10 - Game design competition, written in C
 
-  **Note:** These labs are from fall 2022 and may differ from those listed on the [EE319K website](http://users.ece.utexas.edu/~valvano/Volume1/labs.htm).
+  **Note:** These labs are from fall 2022 and may differ from those listed on the [EE319K website](http://users.ece.utexas.edu/~valvano/Volume1/).
