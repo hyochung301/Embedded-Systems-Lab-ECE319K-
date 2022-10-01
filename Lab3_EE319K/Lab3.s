@@ -1,7 +1,7 @@
 ;****************** Lab3.s ***************
-; Program written by: Put your names here
-; Date Created: 2/4/2017
-; Last Modified: 1/10/2022
+; Program written by: Hyokwon Chung, Garrett William
+; Date Created: 09/17/2022
+; Last Modified: 09/22/2022
 ; Brief description of the program
 ;   The LED toggles at 2 Hz and a varying duty-cycle
 ; Hardware connections (External: Two buttons and one LED)
