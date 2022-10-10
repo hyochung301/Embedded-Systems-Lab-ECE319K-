@@ -28,8 +28,8 @@
 #include "Lab5grader.h"
 #include "../inc/tm4c123gh6pm.h"
 // put both EIDs in the next two lines
-char EID1[] = "abc123"; //  ;replace abc123 with your EID
-char EID2[] = "abc123"; //  ;replace abc123 with your EID
+char EID1[] = "hc27426"; //  ;replace abc123 with your EID
+char EID2[] = "dnd663"; //  ;replace abc123 with your EID
 
 void DisableInterrupts(void);
 void EnableInterrupts(void);
