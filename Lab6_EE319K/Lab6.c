@@ -2,9 +2,9 @@
 // Runs on TM4C123
 // Use SysTick interrupts to implement a 4-key digital piano
 // ECE319K lab6 starter
-// Program written by: put your names here
+// Program written by: Hyokwon Chung and Daniel Davis
 // Date Created: 3/6/17 
-// Last Modified: 8/21/22  
+// Last Modified: 10/16/22  
 // Lab number: 6
 // Hardware connections
 // TO STUDENTS "REMOVE THIS LINE AND SPECIFY YOUR HARDWARE********
@@ -17,8 +17,8 @@
 #include "Music.h"
 #include "Lab6Grader.h"
 // put both EIDs in the next two lines
-char EID1[] = "abc123"; //  ;replace abc123 with your EID
-char EID2[] = "abc123"; //  ;replace abc123 with your EID
+char EID1[] = "DND663"; //  ;replace abc123 with your EID
+char EID2[] = "HC27426"; //  ;replace abc123 with your EID
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -84,9 +84,9 @@ int staticmain(void){
 
 
      
-int main(void){       
+int main(void){uint16_t delay;
   DisableInterrupts();
-  TExaS_Init(NONE);    // bus clock at 80 MHz
+  TExaS_Init(SIMULATIONGRADER);    // bus clock at 80 MHz
 //    SCOPE,
 //    LOGICANALYZERA,
 //    LOGICANALYZERB,
@@ -100,9 +100,33 @@ int main(void){
   Sound_Init();
   Music_Init();
   EnableInterrupts();
+	uint32_t CountDown;
+	CountDown = 100000;
   while(1){                
-    
+		if (Key_In () == 0x01){
+			Sound_Start(4257);
+		}
+		else if (Key_In () == 0x02){
+			Sound_Start(3378);
+		}
+		else if (Key_In () == 0x04){
+			Sound_Start(2841);
+		}
+		else if (Key_In () == 0x08){
+			Sound_Start(2531);
+		}
+		else if (Key_In () == 0x03){
+			Music_PlaySong();
+			Music_StopSong();
+		}
+		else {
+			Sound_Off();
+		}
+		CountDown--;
+		if (CountDown == 0){
+			CountDown = 100000;
+			GPIO_PORTF_DATA_R ^= 0x02;
+		}
   }             
 }
-
 
