@@ -1,6 +1,6 @@
 ; BusyWait.s
-; Student names: change this to your names or look very silly
-; Last modification date: change this to the last modification date or look very silly
+; Student names: Daniel Davis and Hyokwon Chung
+; Last modification date: 10/22/2022
 
 ; Runs on TM4C123
 ; Use SPI to send an 8-bit code to the LCD.
@@ -36,9 +36,25 @@ SPIOutCommand
 ;4) Write the command to the SPI data register (R2 has address)
 ;5) Read the SPI status register (R1 has address) and check bit 4, 
 ;6) If bit 4 is high, loop back to step 5 (wait for BUSY bit to be low)
-    
-  
-   
+	PUSH {R4-R11, LR}
+Step1OutCommand
+	LDR R4, [R1] ;Load data from SPI status
+	AND R4, #0x10 ;Isolate bit
+	CMP R4, #0x10 ;Check bit 4
+	BEQ Step1OutCommand  ;If bit 4 is high, loop back
+	
+	LDR R5, [R3] ;D/C Address data
+	AND R5, #0xBF ;Clear the 6th bit
+	STR R5, [R3] ;Store D/C data back into address
+	
+	STR R0, [R2] ;Store the command into SPI Data
+	
+Step5OutCommand
+	LDR R6, [R1] ;Load data from SPI status
+	AND R6, #0x10 ;Isolate bit
+	CMP R6, #0x10 ;Check bit 4
+	BEQ Step5OutCommand ;If bit 4 high, loop back
+	POP {R4-R11, LR}
     BX  LR             ;   return
 
 
@@ -59,10 +75,19 @@ SPIOutData
 ;2) If bit 1 is low, loop back to step 1 (wait for TNF bit to be high)
 ;3) Set D/C (GPIO bit 6) to one, be friendly (R3 has address)
 ;4) Write the data to the SPI data register (R2 has address)
-   
-   
-
-
+    PUSH {R4-R11, LR}
+Step1OutData
+	LDR R4, [R1] ;Check data from status register
+	AND R4, #0x02 ;Isolate bit
+	CMP R4, #0x02 ;Check bit 1
+	BNE Step1OutData ;If bit 1 is low then loop back
+	
+	LDR R5, [R3] ;Get data from D/C address
+	ORR R5, #0x40 ;Make bit 6 high
+	STR R5, [R3] ;Store data back into D/C address
+	
+	STR R0, [R2] ;Store the data into the SPI data address
+	POP {R4-R11, LR}
     BX  LR             ;return
 ;****************************************************
 

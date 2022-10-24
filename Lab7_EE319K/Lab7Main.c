@@ -91,8 +91,8 @@
 #include "images.h"
 #include "Lab7Grader.h"
 // Modify these two with your EIDs
-char EID1[]="abc1234";  // student's EID
-char EID2[]="abc1235";  // student's EID
+char EID1[]="hc27426";  // student's EID
+char EID2[]="DND663";  // student's EID
 #define SIZE 16
 uint32_t const TestData[SIZE] ={
   0,7,99,100,654,999,1000,5009,9999,10000,20806,65535,
