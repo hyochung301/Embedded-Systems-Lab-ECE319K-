@@ -1,7 +1,7 @@
 // Lab8.c
 // Runs on TM4C123
-// Student names: change this to your names or look very silly
-// Last modification date: change this to the last modification date or look very silly
+// Student names: Daniel Davis and Hyokwon Chung
+// Last modification date: 11/6/2022
 // Last Modified: 1/12/2021 
 
 // Specifications:
@@ -85,7 +85,8 @@ int main2(void){
 // output: integer part of distance in 0.001 resolution
 uint32_t Convert(uint32_t x){
   // write this
-  return 0;
+	x = (1761*x)/4096+118;
+  return x;
 }
  
 
@@ -176,17 +177,43 @@ int main4(void){ uint32_t i,d,sac;
 
 void SysTick_Init(uint32_t period){
   // write this
-}
+	NVIC_ST_CTRL_R = 0;         // disable SysTick during setup
 
+  NVIC_ST_RELOAD_R = period-1;// reload value
+
+  NVIC_ST_CURRENT_R = 0;      // any write to current clears it
+
+  NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R&0x00FFFFFF)|0x40000000; // priority 2          
+
+  NVIC_ST_CTRL_R = 0x07; // enable SysTick with core clock and interrupts
+}
+uint32_t DataSys; // 0 to 4095
+uint32_t Flag; // 1 means new data
 void SysTick_Handler(void){
   // write this
+	GPIO_PORTF_DATA_R ^= 0x02; // toggle PF1
+  DataSys = ADC_In();      // Sample ADC
+  Flag = 1;                  // Synchronize with other threads
 }
 int main(void){ // this is real lab 8 main
+	DisableInterrupts();
+  TExaS_Init(SCOPE);    // Bus clock is 80 MHz 
+  // Connect PF3 to PD3
+	//may need PLL_Init imported
+  ST7735_InitR(INITR_REDTAB); 
+	SysTick_Init(8000000);
+  ADC_Init();        // turn on ADC, PD2, set channel to 5
+  PortF_Init();
+  EnableInterrupts();
   // write this
   // 10 Hz sampling in SysTick ISR
-  while(1){
-    // check semaphore
-    // output to LCD
-  }
+	while(1){
+		while(Flag == 0) {}
+			ST7735_SetCursor(0,0);
+			Flag = 0;
+			// check semaphore
+			// output to LCD
+			ST7735_OutFix(Convert(DataSys));
+			ST7735_OutString("cm.");
+	}
 }
-
