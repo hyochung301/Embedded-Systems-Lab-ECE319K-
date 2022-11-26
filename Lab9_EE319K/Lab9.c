@@ -1,7 +1,7 @@
 // Lab9.c
 // Runs on LM4F120 or TM4C123
-// Student names: solution, do not post
-// Last modification date: change this to the last modification date or look very silly
+// Student names: Daniel Davis and Hyokwon Chung
+// Last modification date: 11/14/2022
 // Last Modified: 8/24/2022 
 
 // Analog Input connected to PD2=ADC1
@@ -63,14 +63,23 @@ void PortF_Init(void){
 // Output: none
 void SysTick_Init(uint32_t period){
     // write this
+	NVIC_ST_CTRL_R = 0;         // disable SysTick during setup
 
+  NVIC_ST_RELOAD_R = period-1;// reload value
+
+  NVIC_ST_CURRENT_R = 0;      // any write to current clears it
+
+  NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R&0x00FFFFFF)|0x40000000; // priority 2          
+
+  NVIC_ST_CTRL_R = 0x07; // enable SysTick with core clock and interrupts
 }
 
 // Get fit from excel and code the convert routine with the constants
 // from the curve-fit
 uint32_t Convert(uint32_t input){
   // copy this from Lab 8 
-    return 0; // replace this line
+	input = (1761*input)/4096+118;
+  return input;
 }
 
 
@@ -78,25 +87,60 @@ uint32_t Convert(uint32_t input){
 // Sender sends using SysTick Interrupt
 // Receiver receives using RX
 int main(void){  
-  DisableInterrupts();
-//  PLL_Init();
-  TExaS_Init(&LogicAnalyzerTask);
-    // write this
+  
+	
+	
+	
+DisableInterrupts();
+	PLL_Init();
+  //TExaS_Init(&LogicAnalyzerTask);
+	SysTick_Init(8000000);
+	PortF_Init();
+	ADC_Init();
+	Fifo_Init();
+	UART1_Init();
   EnableInterrupts();
-  while(1){ // runs every 10ms
-  // write this
+  while(1){// runs every 10ms
+		char i; 
+			ST7735_SetCursor(0,0);
+		Fifo_Get(&i);
+			while (i != '<'){
+				Fifo_Get(&i);
+			}
 
-    
-  }
+			for (uint32_t n = 0; n<5;n++){
+				Fifo_Get(&i);
+				ST7735_OutChar(Fifo_Get(&i));
+			}
+				ST7735_OutString("cm.");
+	}
 }
 
 
 void SysTick_Handler(void){ // every 16.6 ms
  //Similar to Lab8 except rather than grab sample and put in mailbox
- //        format message and transmit 
+ //        format message and transmit
+	  uint16_t data = ADC_In(); // new data
+		uint32_t Position;
+		Position = Convert(data);
+		uint32_t arr[8];
+		uint32_t mod = 0;
+		arr[0] = '<';
+		arr[1] = Position/1000 + '0';
+		mod = Position%1000;
+		arr[2] = '.';
+		arr[3] = mod/100 + '0';
+		mod = mod%100;
+		arr[4] = mod/10 + '0';
+		mod = mod%10;
+		arr[5] = mod + '0';
+		arr[6] = '>';
+	  arr[7] = 0x0A;
+	
   PF1 ^= 0x02;  // Heartbeat
-  // write this
-
+	for (uint32_t i=0; i<8; i++){
+		UART1_OutChar(arr[i]);
+	}
 }
 
 uint32_t M;

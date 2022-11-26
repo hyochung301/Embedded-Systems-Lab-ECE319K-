@@ -436,7 +436,7 @@
             <File>
               <FileName>myfifo.o</FileName>
               <FileType>3</FileType>
-              <FilePath>E:\Box\Box Sync\EE319K_Lectures\LabSolutionsKeil5\Lab9_EE319K-sol\myfifo.o</FilePath>
+              <FilePath>myfifo.o</FilePath>
             </File>
           </Files>
         </Group>

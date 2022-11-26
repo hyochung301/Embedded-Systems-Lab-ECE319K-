@@ -47,7 +47,7 @@ void PortF_Init(void){
 }
 uint32_t Data;        // 12-bit ADC
 uint32_t Position;    // 32-bit fixed-point 0.001 cm
-int main1(void){      // single step this program and look at Data
+int main(void){      // single step this program and look at Data
   DisableInterrupts();
   TExaS_Init(SCOPE);  // Bus clock is 80 MHz 
   ADC_Init();         // turn on ADC, set channel to 5
@@ -84,7 +84,6 @@ int main2(void){
 // input: x is 12 bit ADC digital sample
 // output: integer part of distance in 0.001 resolution
 uint32_t Convert(uint32_t x){
-  // write this
 	x = (1761*x)/4096+118;
   return x;
 }
@@ -176,7 +175,6 @@ int main4(void){ uint32_t i,d,sac;
 }
 
 void SysTick_Init(uint32_t period){
-  // write this
 	NVIC_ST_CTRL_R = 0;         // disable SysTick during setup
 
   NVIC_ST_RELOAD_R = period-1;// reload value
@@ -195,7 +193,7 @@ void SysTick_Handler(void){
   DataSys = ADC_In();      // Sample ADC
   Flag = 1;                  // Synchronize with other threads
 }
-int main(void){ // this is real lab 8 main
+int main1(void){ // this is real lab 8 main
 	DisableInterrupts();
   TExaS_Init(SCOPE);    // Bus clock is 80 MHz 
   // Connect PF3 to PD3
