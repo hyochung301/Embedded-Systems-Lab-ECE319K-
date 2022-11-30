@@ -3,7 +3,7 @@
 // Jonathan Valvano and Daniel Valvano
 // This is a starter project for the EE319K Lab 10
 
-// Last Modified: 8/24/2022 
+// Last Modified: 11/30/2022 
 // http://www.spaceinvaders.de/
 // sounds at http://www.classicgaming.cc/classics/spaceinvaders/sounds.php
 // http://www.classicgaming.cc/classics/spaceinvaders/playguide.php
@@ -123,14 +123,16 @@ ST7735_FillScreen(0x0000);            // set screen to black
   if (Lang == 1){
 			ST7735_SetCursor (0,0);
       ST7735_OutString(("Gameover"));
-			ST7735_SetCursor (0,50);
+			ST7735_SetCursor (0,5);
+			ST7735_OutString(("Score:"));
       ST7735_OutUDec(score);
 			while(1){}
 	}
 	else{
 			ST7735_SetCursor (0,0);
       ST7735_OutString(("Juego terminado"));
-			ST7735_SetCursor (0,50);
+			ST7735_SetCursor (0,5);
+			ST7735_OutString(("Score:"));
 			ST7735_OutUDec(score);
 			while (1){}
   }
@@ -144,7 +146,7 @@ void CheckAllDead (void){
 
 void Gamestart(void){
 	ST7735_FillScreen(0x0000);            // set screen to black
-	ST7735_OutString("\nPara Español,\npresione el\nbotón superior\n\nFor English,\nPress the\nbottom button");
+	ST7735_OutString("\nPara Espanol,\npresione el\nboton inferior\n\nFor English,\nPress the\ntop button");
 while(GPIO_PORTE_DATA_R == 0){}//wait for the input to come in (mask for pe0 and pe1 for read)
   if ((GPIO_PORTE_DATA_R & 0x01) == 1){
          Lang = 1;
@@ -191,7 +193,7 @@ for(int i=0; i<NUMB; i++){
 		ST7735_DrawBitmap(
 	Bullets[i].x,
 	Bullets[i].y,
-	Bullets[i].bimage, 16, 10);
+	Bullets[i].bimage, 4, 6);
 		Bullets[i].life = dead;
 	}
 }
@@ -264,7 +266,7 @@ void Collision(void){
 			for (int j = 0; j < NUMB; j++){
 				if(Bullets[j].life == alive){
 					//only look at bullets that are alive
-					if ((((Enemies[i].x - Bullets[j].x)*(Enemies[i].x - Bullets[j].x))+((Enemies[i].y - Bullets[j].y)*(Enemies[i].y - Bullets[j].y))) < 200){              //collision calc needed here
+					if ((((Enemies[i].x - Bullets[j].x)*(Enemies[i].x - Bullets[j].x))+((Enemies[i].y - Bullets[j].y)*(Enemies[i].y - Bullets[j].y))) < 100){              //collision calc needed here
 					Enemies[i].life = dying;
 					Bullets[j].life = dying;
 					score += Enemies[i].points;
