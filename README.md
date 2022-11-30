@@ -25,6 +25,6 @@ Labs from Jonathan Valvano's [EE319K Introduction to Embedded Systems](http://us
 - Lab 9 - Distributed DAS, serial port interrupts, FIFO queue, mixture of assembly and C
 - Lab 10 - Game design competition, written in C
 
-[![Watch the Demo](https://img.youtube.com/vi/9S2I1dqgm7I/maxresdefault.jpg)](https://youtu.be/9S2I1dqgm7I)
+[![Watch Space Invader Gameplay](https://img.youtube.com/vi/Uh0HCBkd0I4/maxresdefault.jpg)](https://youtu.be/Uh0HCBkd0I4)
 
   **Note:** These labs are from fall 2022 and may differ from those listed on the [EE319K website](http://users.ece.utexas.edu/~valvano/Volume1/).
