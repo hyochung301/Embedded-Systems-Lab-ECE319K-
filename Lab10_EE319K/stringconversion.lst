@@ -1,0 +1,397 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; StringConversion.s
+    2 00000000         ; Hyokwon Chung, Daniel Davis
+    3 00000000         ; Last modification date: change this to the last modifi
+                       cation date or look very silly
+    4 00000000         ; Runs on TM4C123
+    5 00000000         ; EE319K lab 7 number to string conversions
+    6 00000000         ;
+    7 00000000         ; Used in ECE319K Labs 7,8,9,10. You write these two fun
+                       ctions
+    8 00000000         
+    9 00000000         
+   10 00000000                 EXPORT           Dec2String
+   11 00000000                 EXPORT           Fix2String
+   12 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   13 00000000                 THUMB
+   14 00000000                 PRESERVE8
+   15 00000000         
+   16 00000000         ;-----------------------Dec2String----------------------
+                       -
+   17 00000000         ; Convert a 32-bit number into unsigned decimal format
+   18 00000000         ; String the string into the empty array add null-termin
+                       ation
+   19 00000000         ; Input: R0 (call by value) 32-bit unsigned number
+   20 00000000         ;        R1 pointer to empty array
+   21 00000000         ; Output: none
+   22 00000000         ; Invariables: This function must not permanently modify
+                        registers R4 to R11
+   23 00000000         Dec2String
+   24 00000000         ;R0 IS THE CALLED VALUE
+   25 00000000         ;R1 IS THE ARRAY POINTER TO EMPTY ARRAY, USE AS SUCH
+   26 00000000         ;DO NOT PERM MODIFY R4-R11
+   27 00000000 E92D 0FF0       PUSH             {R4-R11}    ;makes code friendl
+                                                            y
+   28 00000004         ; MOV R0, #15
+   29 00000004         ; MOV R11, SP
+   30 00000004         ; SUB SP, #4 ;allocation
+   31 00000004         ;counter EQU 0 ;LOCAL VAR COUNTER
+   32 00000004         ; MOV R12, #0 ;INDEX
+   33 00000004         ; MOV R10, #0
+   34 00000004         ; STR R10, [R11, #counter] ;clearing local var
+   35 00000004         ; STR R10, [R11, #counter+1] ;clearing local var
+   36 00000004         ; STR R10, [R11, #counter+2] ;clearing local var
+   37 00000004         ; STR R10, [R11, #counter+3] ;clearing local var
+   38 00000004         ;Start
+   39 00000004         ; MOV R2, #10
+   40 00000004         ; UDIV R3, R0, R2 ;MOD FUNC
+   41 00000004         ; MUL R4, R3, R2 ;MOD FUNC
+   42 00000004         ; SUB R4, R0, R4 ;MOD FUNC
+   43 00000004         ; UDIV R0, R0, R3 ;N=N/10
+   44 00000004         ; PUSH {R5, R4};PUSH D
+   45 00000004         ; LDR R6, [R11, #counter] ;load counter value
+   46 00000004         ; ADD R6, R6, #1 ;increment counter
+   47 00000004         ; STR R6, [R11, #counter] ;store counter value
+   48 00000004         ; CMP R0, #0 ;cmp value if its done computing
+   49 00000004         ; BNE Start 
+   50 00000004         ;PopStart
+   51 00000004         ; POP {R5, R4} ;pop the first value off the stack (ex: 1
+                       5, first value will be the 1)
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   52 00000004         ; ADD R4, R4, #'0'
+   53 00000004         ; STR R4, [R1] ;storing ascii char into array
+   54 00000004         ; ADD R1, R1, #4 ;incrementing index
+   55 00000004         ; LDR R6, [R11, #counter] ;load counter value
+   56 00000004         ; SUB R6, R6, #1 ;decrement counter
+   57 00000004         ; STR R6, [R11, #counter] ;store counter value
+   58 00000004         ; CMP R6, #0 ;check if c is 0
+   59 00000004         ; BNE PopStart
+   60 00000004         ; MOV R5, #0
+   61 00000004         ; STR R5, [R1] ;null end the buff[i]
+   62 00000004         ; ADD SP, #4 ;deallocate
+   63 00000004         
+   64 00000004 B081            SUB              SP, #4      ;allocation
+   65 00000006 F10D 0B00       ADD              R11, SP, #0 ;setting up fp
+   66 0000000A 00000000 
+                       C       EQU              0           ;LOCAL VAR COUNTER
+   67 0000000A F04F 0A00       MOV              R10, #0
+   68 0000000E         ;MOV R5, R1 ;KEEP R1 SAFE
+   69 0000000E F88B A000       STRB             R10, [R11, #C] 
+                                                            ;clearing local var
+                                                            
+   70 00000012 F88B A001       STRB             R10, [R11, #C+1] 
+                                                            ;clearing local var
+                                                            
+   71 00000016 F88B A002       STRB             R10, [R11, #C+2] 
+                                                            ;clearing local var
+                                                            
+   72 0000001A F88B A003       STRB             R10, [R11, #C+3] 
+                                                            ;clearing local var
+                                                            
+   73 0000001E         Start
+   74 0000001E F04F 030A       MOV              R3, #10
+   75 00000022 FBB0 F6F3       UDIV             R6, R0, R3  ;MOD FUNC
+   76 00000026 FB06 FC03       MUL              R12, R6, R3 ;MOD FUNC
+   77 0000002A EBA0 0C0C       SUB              R12, R0, R12 ;MOD FUNC
+   78 0000002E         
+   79 0000002E FBB0 F0F3       UDIV             R0, R0, R3  ;n=n/10
+   80 00000032         
+   81 00000032 E92D 1200       PUSH             {R9, R12}   ;push D
+   82 00000036         
+   83 00000036 F89B 4000       LDRB             R4, [R11, #C] ;LOADING R4 WITH 
+                                                            LOCAL VAR COUNTER
+   84 0000003A F104 0401       ADD              R4, R4, #1  ;c=c+1
+   85 0000003E F88B 4000       STRB             R4, [R11, #C]
+   86 00000042 2800            CMP              R0, #0
+   87 00000044 D1EB            BNE              Start
+   88 00000046         PopStart
+   89 00000046 E8BD 1200       POP{R9,          R12}        ;r7 = x, pop into x
+                                                            
+   90 0000004A F10C 0C30       ADD              R12, R12, #'0' ;x+'0' to make i
+                                                            t ascii
+   91 0000004E F881 C000       STRB             R12,[R1]    ;storing into array
+                                                             buf[i]
+   92 00000052 F101 0101       ADD              R1, R1, #1  ;i=i+1
+   93 00000056 F89B 4000       LDRB             R4, [R11, #C]
+   94 0000005A F1A4 0401       SUB              R4, R4, #1  ;SUBTRACTING THE CO
+                                                            UNTER
+   95 0000005E F88B 4000       STRB             R4, [R11, #C]
+   96 00000062 2C00            CMP              R4, #0
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   97 00000064 D1EF            BNE              PopStart
+   98 00000066         
+   99 00000066 F04F 0500       MOV              R5, #0
+  100 0000006A 600D            STR              R5, [R1]    ;store 0 into last 
+                                                            buf[i]
+  101 0000006C         
+  102 0000006C B001            ADD              SP, #4      ;deallocation
+  103 0000006E         
+  104 0000006E E8BD 0FF0       POP              {R4-R11}
+  105 00000072 4770            BX               LR
+  106 00000074         ;* * * * * * * * End of Dec2String * * * * * * * *
+  107 00000074         
+  108 00000074         
+  109 00000074         ; -----------------------Fix2String---------------------
+                       -
+  110 00000074         ; Create characters for LCD display in fixed-point forma
+                       t
+  111 00000074         ; unsigned decimal, resolution 0.001, range 0.000 to 9.9
+                       99
+  112 00000074         ; Inputs:  R0 is an unsigned 32-bit number
+  113 00000074         ;          R1 pointer to empty array
+  114 00000074         ; Outputs: none
+  115 00000074         ; E.g., R0=0,    then create "0.000 "
+  116 00000074         ;       R0=3,    then create "0.003"
+  117 00000074         ;       R0=89,   then create "0.089"
+  118 00000074         ;       R0=123,  then create "0.123"
+  119 00000074         ;       R0=9999, then create "9.999"
+  120 00000074         ;       R0>9999, then create "*.***"
+  121 00000074         ; Invariables: This function must not permanently modify
+                        registers R4 to R11
+  122 00000074         Fix2String
+  123 00000074 E92D 0FF0       PUSH             {R4-R11}
+  124 00000078 B081            SUB              SP, #4      ;allocation
+  125 0000007A F10D 0B00       ADD              R11, SP, #0 ;setting up fp
+  126 0000007E 00000000 
+                       NVal    EQU              0
+  127 0000007E F04F 0C00       MOV              R12, #0     ;Init NVal
+  128 00000082 F88B C000       STRB             R12, [R11, #NVal] 
+                                                            ;init NVal to 0
+  129 00000086 F88B A001       STRB             R10, [R11, #NVal+1] ;clearing
+  130 0000008A F88B A002       STRB             R10, [R11, #NVal+2] ;clearing
+  131 0000008E F88B A003       STRB             R10, [R11, #NVal+3] ;clearing
+  132 00000092         
+  133 00000092 F242 720F       MOV              R2, #9999
+  134 00000096 4290            CMP              R0, R2      ;CHECK IF R0>9999, 
+                                                            EDGE CASE
+  135 00000098 D858            BHI              StarSkip
+  136 0000009A         
+  137 0000009A F44F 727A       MOV              R2, #1000
+  138 0000009E FBB0 F3F2       UDIV             R3, R0, R2  ;D=N/1000
+  139 000000A2 F103 0330       ADD              R3, R3, #'0'
+  140 000000A6 700B            STRB             R3, [R1]    ;buf[0] = d + '0'
+  141 000000A8 F101 0101       ADD              R1, R1, #1  ;increment index
+  142 000000AC         ;modulo function
+  143 000000AC FBB0 F4F2       UDIV             R4, R0, R2  ;R4=N/1000
+  144 000000B0 FB04 F502       MUL              R5, R4, R2  ;R5=(N/1000)*1000
+  145 000000B4 EBA0 0305       SUB              R3, R0, R5  ;R3=N-((N/1000)*100
+                                                            0)
+  146 000000B8 F8AB 3000       STRH             R3, [R11, #NVal]
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  147 000000BC         
+  148 000000BC F04F 0C2E       MOV              R12, #'.'
+  149 000000C0 F881 C000       STRB             R12, [R1]   ;buf[1] = '.'
+  150 000000C4 F101 0101       ADD              R1, R1, #1
+  151 000000C8         
+  152 000000C8 F04F 0264       MOV              R2, #100
+  153 000000CC F8BB 4000       LDRH             R4, [R11, #NVal]
+  154 000000D0 FBB4 F3F2       UDIV             R3, R4, R2  ;D=N/100
+  155 000000D4 F103 0330       ADD              R3, R3, #'0'
+  156 000000D8 700B            STRB             R3, [R1]    ;buf[2] = d + '0'
+  157 000000DA F101 0101       ADD              R1, R1, #1  ;increment index
+  158 000000DE FBB0 F4F2       UDIV             R4, R0, R2  ;R4=N/100
+  159 000000E2 FB04 F502       MUL              R5, R4, R2  ;R5=(N/100)*100
+  160 000000E6 EBA0 0305       SUB              R3, R0, R5  ;R3=N-((N/100)*100)
+                                                            
+  161 000000EA F88B 3000       STRB             R3, [R11, #NVal]
+  162 000000EE         
+  163 000000EE F04F 020A       MOV              R2, #10
+  164 000000F2 F89B 4000       LDRB             R4, [R11, #NVal]
+  165 000000F6 FBB4 F3F2       UDIV             R3, R4, R2  ;D=N/10
+  166 000000FA F103 0330       ADD              R3, R3, #'0'
+  167 000000FE 700B            STRB             R3, [R1]    ;buf[3] = d + '0'
+  168 00000100 F101 0101       ADD              R1, R1, #1  ;increment index
+  169 00000104 FBB0 F4F2       UDIV             R4, R0, R2  ;R4=N/10
+  170 00000108 FB04 F502       MUL              R5, R4, R2  ;R5=(N/10)*10
+  171 0000010C EBA0 0305       SUB              R3, R0, R5  ;R3=N-((N/10)*10)
+  172 00000110 F88B 3000       STRB             R3, [R11, #NVal]
+  173 00000114         
+  174 00000114 F04F 0201       MOV              R2, #1
+  175 00000118 F89B 4000       LDRB             R4, [R11, #NVal]
+  176 0000011C FBB4 F3F2       UDIV             R3, R4, R2  ;D=N/1
+  177 00000120 F103 0330       ADD              R3, R3, #'0'
+  178 00000124 700B            STRB             R3, [R1]    ;buf[4] = d + '0'
+  179 00000126 F101 0101       ADD              R1, R1, #1  ;increment index
+  180 0000012A FBB0 F4F2       UDIV             R4, R0, R2  ;R4=N/1
+  181 0000012E FB04 F502       MUL              R5, R4, R2  ;R5=(N/1)*1
+  182 00000132 EBA0 0305       SUB              R3, R0, R5  ;R3=N-((N/1)*1)
+  183 00000136 F88B 3000       STRB             R3, [R11, #NVal]
+  184 0000013A         
+  185 0000013A F04F 0320       MOV              R3, #0x20   ;space
+  186 0000013E 700B            STRB             R3, [R1]    ;store space as las
+                                                            t value
+  187 00000140 F101 0101       ADD              R1, R1, #1
+  188 00000144         
+  189 00000144 F04F 0300       MOV              R3, #0
+  190 00000148 700B            STRB             R3, [R1]
+  191 0000014A         
+  192 0000014A E01B            B                FixDone
+  193 0000014C         
+  194 0000014C         StarSkip
+  195 0000014C F04F 022A       MOV              R2, #'*'
+  196 00000150 700A            STRB             R2, [R1]
+  197 00000152 F101 0101       ADD              R1, R1, #1
+  198 00000156 F04F 022E       MOV              R2, #'.'
+  199 0000015A 700A            STRB             R2, [R1]
+  200 0000015C F101 0101       ADD              R1, R1, #1
+  201 00000160 F04F 022A       MOV              R2, #'*'
+  202 00000164 700A            STRB             R2, [R1]
+  203 00000166 F101 0101       ADD              R1, R1, #1
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  204 0000016A F04F 022A       MOV              R2, #'*'
+  205 0000016E 700A            STRB             R2, [R1]
+  206 00000170 F101 0101       ADD              R1, R1, #1
+  207 00000174 F04F 022A       MOV              R2, #'*'
+  208 00000178 700A            STRB             R2, [R1]
+  209 0000017A F101 0101       ADD              R1, R1, #1
+  210 0000017E F04F 0200       MOV              R2, #0
+  211 00000182 700A            STRB             R2, [R1]
+  212 00000184         FixDone
+  213 00000184         
+  214 00000184 B001            ADD              SP, #4      ;deallocate
+  215 00000186 E8BD 0FF0       POP              {R4-R11}
+  216 0000018A         
+  217 0000018A 4770            BX               LR
+  218 0000018C         
+  219 0000018C         
+  220 0000018C                 ALIGN                        ; make sure the end
+                                                             of this section is
+                                                             aligned
+  221 0000018C                 END                          ; end of file
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
+ork --depend=.\stringconversion.d -o.\stringconversion.o -I.\RTE\_SpaceInvaders
+ -IC:\Users\kools\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include -I
+C:\Users\kools\AppData\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C1
+23 --predefine="__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 534" --prede
+fine="_RTE_ SETA 1" --predefine="TM4C123GH6PM SETA 1" --predefine="_RTE_ SETA 1
+" --list=.\stringconversion.lst ..\inc\StringConversion.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 12 in file ..\inc\StringConversion.s
+   Uses
+      None
+Comment: .text unused
+Dec2String 00000000
+
+Symbol: Dec2String
+   Definitions
+      At line 23 in file ..\inc\StringConversion.s
+   Uses
+      At line 10 in file ..\inc\StringConversion.s
+Comment: Dec2String used once
+Fix2String 00000074
+
+Symbol: Fix2String
+   Definitions
+      At line 122 in file ..\inc\StringConversion.s
+   Uses
+      At line 11 in file ..\inc\StringConversion.s
+Comment: Fix2String used once
+FixDone 00000184
+
+Symbol: FixDone
+   Definitions
+      At line 212 in file ..\inc\StringConversion.s
+   Uses
+      At line 192 in file ..\inc\StringConversion.s
+Comment: FixDone used once
+PopStart 00000046
+
+Symbol: PopStart
+   Definitions
+      At line 88 in file ..\inc\StringConversion.s
+   Uses
+      At line 97 in file ..\inc\StringConversion.s
+Comment: PopStart used once
+StarSkip 0000014C
+
+Symbol: StarSkip
+   Definitions
+      At line 194 in file ..\inc\StringConversion.s
+   Uses
+      At line 135 in file ..\inc\StringConversion.s
+Comment: StarSkip used once
+Start 0000001E
+
+Symbol: Start
+   Definitions
+      At line 73 in file ..\inc\StringConversion.s
+   Uses
+      At line 87 in file ..\inc\StringConversion.s
+Comment: Start used once
+7 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+C 00000000
+
+Symbol: C
+   Definitions
+      At line 66 in file ..\inc\StringConversion.s
+   Uses
+      At line 69 in file ..\inc\StringConversion.s
+      At line 70 in file ..\inc\StringConversion.s
+      At line 71 in file ..\inc\StringConversion.s
+      At line 72 in file ..\inc\StringConversion.s
+      At line 83 in file ..\inc\StringConversion.s
+      At line 85 in file ..\inc\StringConversion.s
+      At line 93 in file ..\inc\StringConversion.s
+      At line 95 in file ..\inc\StringConversion.s
+
+NVal 00000000
+
+Symbol: NVal
+   Definitions
+      At line 126 in file ..\inc\StringConversion.s
+   Uses
+      At line 128 in file ..\inc\StringConversion.s
+      At line 129 in file ..\inc\StringConversion.s
+      At line 130 in file ..\inc\StringConversion.s
+      At line 131 in file ..\inc\StringConversion.s
+      At line 146 in file ..\inc\StringConversion.s
+      At line 153 in file ..\inc\StringConversion.s
+      At line 161 in file ..\inc\StringConversion.s
+      At line 164 in file ..\inc\StringConversion.s
+      At line 172 in file ..\inc\StringConversion.s
+      At line 175 in file ..\inc\StringConversion.s
+      At line 183 in file ..\inc\StringConversion.s
+
+2 symbols
+343 symbols in table

@@ -1139,13 +1139,27 @@ const uint8_t highpitch[1802] = {
   67, 119, 148, 166, 164, 238, 223, 202, 174, 112, 96, 78, 0, 34, 54, 99, 143, 160, 166, 183, 
   250, 207};
 
+uint32_t Length;
+const uint8_t *SoundPt;
+	
 void Sound_Init(void){
 // write this
     // initialize a 11kHz Timer0A, and the DAC
+	Length = 0;
+	DAC_Init();          // Port B is DAC
+	Timer0_Init(80000000/11000 , 0); //11 khz
 };
 void Timer0A_Handler(void){ // called at 11 kHz
   TIMER0_ICR_R = 0x01;   // acknowledge TIMER0A timeout
   // output one value to DAC if a sound is active
+	if(Length){
+		DAC_Out(*SoundPt/4);
+		SoundPt++;
+		Length--;
+	}
+	else{
+		NVIC_DIS0_R = 1<<19;
+	}
 }
 
 //******* Sound_Start ************
@@ -1159,29 +1173,42 @@ void Timer0A_Handler(void){ // called at 11 kHz
 // special cases: as you wish to implement
 void Sound_Start(const uint8_t *pt, uint32_t count){
 // write this
+	Length = count;
+	SoundPt = pt;
+	NVIC_EN0_R = 1<<19;
 };
 void Sound_Shoot(void){
 // write this
+	//implement
+	Sound_Start(shoot, 4080);
 };
 void Sound_Killed(void){
 // write this
+	Sound_Start(invaderkilled, 4080);
 };
 void Sound_Explosion(void){
 // write this
+	//implement
+	Sound_Start(explosion, 4080);
 };
 
 void Sound_Fastinvader1(void){
 // write this
+	Sound_Start(fastinvader1, 4080);
 };
 void Sound_Fastinvader2(void){
 // write this
+	Sound_Start(fastinvader2, 4080);
 };
 void Sound_Fastinvader3(void){
 // write this
+	Sound_Start(fastinvader3, 4080);
 };
 void Sound_Fastinvader4(void){
 // write this
+	Sound_Start(fastinvader4, 4080);
 };
 void Sound_Highpitch(void){
 // write this
+	Sound_Start(highpitch, 4080);
 };
